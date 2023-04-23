@@ -10,107 +10,40 @@ using System.Windows.Threading;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace LiveSplit.ClientPlugin
+namespace LiveSplit.RemotePlugin
 {
-	public class LSClientInstance
+	public class LSRemoteInstance
 	{
-		DispatcherTimer t;
 		DateTime start;
 		TcpClient client;
 
-		public static string AppDataRoamingPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\LiveSplitClient";
+		public static string AppDataRoamingPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\LiveSplitRemote";
 		public static string ConfigurationFile = AppDataRoamingPath + @"\Config.xml";
 
-		public string ServerReturnData { get; set; }
 		public string ServerStatus { get; set; }
 		public string IPAddress { get; set; }
 		public int Port { get; set; }
 		public bool Autosplit { get; set; }
-		public int SplitIndex { get; set; }
-
-		public int IGT
+		
+		public LSRemoteInstance()
 		{
-			get
-			{
-				return TimeStringToMili(ServerReturnData);
-			}
-		}
-	
-		public LSClientInstance()
-		{
-			t = new DispatcherTimer(new TimeSpan(0, 0, 0, 0, 10), DispatcherPriority.Background, t_Tick, Dispatcher.CurrentDispatcher);
-			SplitIndex = 0;
 			start = DateTime.Now;
 			CreateConfiguration();
 			VerifyConfig();
 			ReadConfiguration();
 			ConnectToServer();
 		}
-
-		private void t_Tick(object sender, EventArgs e)
+		
+		public string sendCommandString(string commandString, bool hasReturn)
 		{
-			try
-			{
-				StreamWriter sw = new StreamWriter(client.GetStream());
-				StreamReader sr = new StreamReader(client.GetStream());
-				sw.WriteLine("getcurrenttime");
-				sw.Flush();
-				ServerReturnData = sr.ReadLine();
-				sw.WriteLine("getsplitindex");
-				sw.Flush();
-				SplitIndex = int.Parse(sr.ReadLine());
+			StreamWriter sw = new StreamWriter(client.GetStream());
+			StreamReader sr = new StreamReader(client.GetStream());
+			sw.WriteLine(commandString);
+			sw.Flush();
+			if(hasReturn) {
+				return sr.ReadLine();
 			}
-			catch
-			{
-				ServerStatus = "Error";
-			}
-		}
-
-		public int TimeStringToMili(string time)
-		{
-			if(time == null)
-			{
-				return 0;
-			}
-
-			if (Regex.Matches(time, @"[a-zA-Z]").Count > 0)
-			{
-				return 0;
-			}
-
-			int milliseconds = 0;
-			int seconds = 0;
-			int minutes = 0;
-			int hours = 0;
-
-			switch(time.Count(f => f == ':'))
-			{
-				case 0:
-					seconds = int.Parse(time.Substring(0, time.IndexOf('.')));
-					time = time.Substring(time.IndexOf('.') + 1);
-					milliseconds = 10 * int.Parse(time);
-					break;
-				case 1:
-					minutes = int.Parse(time.Substring(0, time.IndexOf(':')));
-					time = time.Substring(time.IndexOf(':') + 1);
-					seconds = int.Parse(time.Substring(0, time.IndexOf('.')));
-					time = time.Substring(time.IndexOf('.') + 1);
-					milliseconds = 10 * int.Parse(time);
-					break;
-				case 2:
-					hours = int.Parse(time.Substring(0, time.IndexOf(':')));
-					time = time.Substring(time.IndexOf(':') + 1);
-					minutes = int.Parse(time.Substring(0, time.IndexOf(':')));
-					time = time.Substring(time.IndexOf(':') + 1);
-					seconds = int.Parse(time.Substring(0, time.IndexOf('.')));
-					time = time.Substring(time.IndexOf('.') + 1);
-					milliseconds = 10 * int.Parse(time);
-					break;
-			}
-
-			milliseconds = milliseconds +(hours * 60 * 60 * 1000) + (minutes * 60 * 1000) + (seconds * 1000);
-
-			return milliseconds;
+			return "";
 		}
 
 		public void CreateConfiguration()
@@ -196,12 +129,10 @@ namespace LiveSplit.ClientPlugin
 				client = new TcpClient();
 				await client.ConnectAsync(IPAddress, Port);
 				ServerStatus = "Connected";
-				t.IsEnabled = true;
 			}
 			catch
 			{
 				ServerStatus = "Connection Error\nPlease check settings and restart LiveSplit server";
-				t.IsEnabled = false;
 			}
 		}
 

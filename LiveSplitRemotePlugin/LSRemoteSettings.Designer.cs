@@ -1,6 +1,6 @@
-﻿namespace LiveSplit.ClientPlugin
+﻿namespace LiveSplit.RemotePlugin
 {
-	partial class LSClientSettings
+	partial class LSRemoteSettings
 	{
 		/// <summary> 
 		/// Required designer variable.
@@ -112,7 +112,7 @@
 			this.cbAutosplit.UseVisualStyleBackColor = true;
 			this.cbAutosplit.CheckedChanged += new System.EventHandler(this.cbAutosplit_CheckedChanged);
 			// 
-			// LSClientSettings
+			// LSRemoteSettings
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -124,7 +124,7 @@
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.txtPort);
 			this.Controls.Add(this.txtIPAddress);
-			this.Name = "LSClientSettings";
+			this.Name = "LSRemoteSettings";
 			this.Size = new System.Drawing.Size(348, 309);
 			this.ResumeLayout(false);
 			this.PerformLayout();

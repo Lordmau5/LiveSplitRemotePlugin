@@ -10,13 +10,13 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Threading;
 
-namespace LiveSplit.ClientPlugin
+namespace LiveSplit.RemotePlugin
 {
-	public partial class LSClientSettings : UserControl
+	public partial class LSRemoteSettings : UserControl
 	{
-		LSClientInstance instance;
+		LSRemoteInstance instance;
 
-		public LSClientSettings(LSClientInstance instance)
+		public LSRemoteSettings(LSRemoteInstance instance)
 		{
 			InitializeComponent();
 			this.instance = instance;
