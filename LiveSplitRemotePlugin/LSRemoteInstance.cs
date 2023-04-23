@@ -36,13 +36,16 @@ namespace LiveSplit.RemotePlugin
 		
 		public string sendCommandString(string commandString, bool hasReturn)
 		{
-			StreamWriter sw = new StreamWriter(client.GetStream());
-			StreamReader sr = new StreamReader(client.GetStream());
-			sw.WriteLine(commandString);
-			sw.Flush();
-			if(hasReturn) {
-				return sr.ReadLine();
+			if(client.Connected) {
+				StreamWriter sw = new StreamWriter(client.GetStream());
+				StreamReader sr = new StreamReader(client.GetStream());
+				sw.WriteLine(commandString);
+				sw.Flush();
+				if(hasReturn) {
+					return sr.ReadLine();
+				}
 			}
+			
 			return "";
 		}
 

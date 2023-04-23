@@ -1,7 +1,7 @@
 # LiveSplit Remote Plugin
 
 Livesplit Remote allows an instance of Livesplit on one PC to control another instance of Livesplit on another PC in order to sync Time values and split events.
-This is helpful for runners using a 2 PC setup (a Game PC and a Stream PC) to maintain highly accurate IGT or RTA no-load times with support for autosplitters, without the hassle a complex capture setup.
+This is helpful for runners using a 2 PC setup (a Game PC and a Stream PC) to maintain highly accurate **IGT or RTA no-load times** with support for autosplitters, without the hassle a complex capture setup.
 It may also be useful in situation like races, where participants could all send thier local timer telemetry to a offsite broadcaster. 
 
 In addition to using LiveSplit Remote on your Game PC, you'll also need Livesplit Server on your Stream PC to so it can receive the telemetry.
@@ -47,6 +47,8 @@ To install plugins just add the .dll files to the "Components" folder in the Liv
 Make sure to save the layouts after you set everything up so you don't have to do it every time you launch.
 
 When launching the Livesplit on the Streaming PC, remember to start the server! This doesn't happen automatically
+
+Since LiveSplit does not provide a direct way to control the RTA timer the way it does for the IGT timer, **this plugin is only suitable for situations where LiveSplit's Timing Method is "Game Time"**
 
 ## TROUBLESHOOTING
 

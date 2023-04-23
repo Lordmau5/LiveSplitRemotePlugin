@@ -15,7 +15,7 @@ namespace LiveSplit.RemotePlugin
 {
 	public class LSRemote : LogicComponent
 	{
-		public override string ComponentName => "Livesplit Remote";
+		public override string ComponentName => "LiveSplit Remote";
 		private LiveSplitState state;
 		private LSRemoteSettings settings;
 		private LSRemoteInstance instance;
