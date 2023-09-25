@@ -39,12 +39,9 @@ namespace LiveSplit.RemotePlugin
 			state.OnResume += (sender, e) => { instance.sendCommandString("resume", false); };
 			state.OnReset += (sender, e) => { instance.sendCommandString("reset", false); };
 
-			if (! instance.Autosplit)
-			{
-				state.OnSplit += (sender, e) => { instance.sendCommandString("split", false); };
-				state.OnUndoSplit += (sender, e) => { instance.sendCommandString("unsplit", false); };
-				state.OnSkipSplit += (sender, e) => { instance.sendCommandString("skipsplit", false); };
-			}
+			state.OnSplit += (sender, e) => { instance.sendCommandString("split", false); };
+			state.OnUndoSplit += (sender, e) => { instance.sendCommandString("unsplit", false); };
+			state.OnSkipSplit += (sender, e) => { instance.sendCommandString("skipsplit", false); };
 
 			t = new DispatcherTimer(new TimeSpan(0, 0, 0, 0, 10), DispatcherPriority.Background, t_Tick, Dispatcher.CurrentDispatcher);
 			t.IsEnabled = true;

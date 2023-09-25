@@ -67,7 +67,7 @@ namespace LiveSplit.RemotePlugin
 				Writer.WriteEndElement();
 
 				Writer.WriteStartElement("Autosplit");
-				Writer.WriteString("False");
+				Writer.WriteString("True");
 				Writer.WriteEndElement();
 
 				Writer.WriteEndElement();
@@ -106,7 +106,7 @@ namespace LiveSplit.RemotePlugin
 			}
 			if (autoSplitElement == null)
 			{
-				xml.Descendants("Configs").FirstOrDefault().Add(new XElement("Autosplit", "False"));
+				xml.Descendants("Configs").FirstOrDefault().Add(new XElement("Autosplit", "True"));
 			}
 			xml.Save(ConfigurationFile);
 		}

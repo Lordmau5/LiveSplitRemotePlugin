@@ -9,7 +9,7 @@ In addition to using LiveSplit Remote on your Game PC, you'll also need Livespli
 This plugin was based off of the https://github.com/Villhellm/LiveSplitClientPlugin/ .  The core differences are: 
 * Livesplit Remote runs on the Livesplit of the **Game PC**, not the **Stream PC**, and _pushes_ time values and status/split changes to the Stream PC
 * this plugin listens to the Start, Reset, Pause, and Resume events from Livesplit and relays these to the server
-* When the Autosplitting setting is disabled, split controls are synced through events, providing more consistent support for skipping and reversing splits when using manual split controls
+* Manual split controls are also synced through events, providing more consistent support for manually splitting, skipping, unsplitting
 
 ## PREREQUISITES
 
@@ -31,7 +31,7 @@ LiveSplit Remote: https://github.com/jayo-exe/LiveSplitRemotePlugin/releases
 ### GAMING PC:
 
 1. Download LiveSplit and the Livesplit Remote plugin
-2. Add the plugin to your layout (Right-click > Edit Layout > + > Control > Live Split Remote)
+2. Add the plugin to your layout (Right-click > Edit Layout > + > Control > LiveSplit Remote)
 3. Set the IP address of the server you set up (Layout Settings > LiveSplit Remote tab > IP address)
 4. Press the "Attempt Connection" button. It should say "Connected" under server status. If not make sure your IP address and port are correct and that the server is running. Save all settings.
 5. Set the timing method to "Game Time" (Right-click > Compare Against > Game Time) and start the timer (Right-click > Controls > Start)

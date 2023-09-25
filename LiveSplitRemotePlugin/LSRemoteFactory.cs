@@ -9,7 +9,7 @@ namespace LiveSplit.RemotePlugin
 {
 	internal class LSRemoteFactory : IComponentFactory
 	{
-		public string ComponentName => "Live Split Remote";
+		public string ComponentName => "LiveSplit Remote";
 		public string Description => "Connect to a Livesplit server and sync telemetry and events";
 		public string UpdateName => ComponentName;
 
