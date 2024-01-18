@@ -1,59 +1,73 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using LiveSplit.UI;
+using System;
 using System.Windows.Forms;
 using System.Xml;
-using System.Threading;
 
 namespace LiveSplit.RemotePlugin
 {
-	public partial class LSRemoteSettings : UserControl
-	{
-		LSRemoteInstance instance;
+    public partial class LSRemoteSettings : UserControl
+    {
+        private readonly LSRemote remote;
 
-		public LSRemoteSettings(LSRemoteInstance instance)
-		{
-			InitializeComponent();
-			this.instance = instance;
-			txtIPAddress.Text = instance.IPAddress;
-			txtPort.Text = instance.Port.ToString();
-			lblServerStatus.Text = instance.ServerStatus;
-		}
+        public string ServerIP { get; set; }
 
-		public XmlNode GetSettings(XmlDocument document)
-		{
-			XmlElement settingsNode = document.CreateElement("Settings");
-			return settingsNode;
-		}
+        public ushort Port { get; set; }
 
-		public void SetSettings(XmlNode settings)
-		{
-			
-		}
+        public string PortString
+        {
+            get => this.Port.ToString();
+            set => this.Port = ushort.Parse(value);
+        }
 
-		static XmlElement ToElement<T>(XmlDocument document, string name, T value)
-		{
-			XmlElement str = document.CreateElement(name);
-			str.InnerText = value.ToString();
-			return str;
-		}
+        public bool EnableAutosplit { get; set; }
 
-		private async void btnConnect_Click(object sender, EventArgs e)
-		{
-			instance.SaveConfiguration(txtIPAddress.Text, txtPort.Text, cbAutosplit.Checked);
-			lblServerStatus.Text = "Attempting connection...";
-			await instance.ConnectToServer();
-			lblServerStatus.Text = instance.ServerStatus;
-		}
+        public LSRemoteSettings(LSRemote remote)
+        {
+            this.InitializeComponent();
+            this.remote = remote;
 
-		private void cbAutosplit_CheckedChanged(object sender, EventArgs e)
-		{
-			instance.SaveConfiguration(txtIPAddress.Text, txtPort.Text, cbAutosplit.Checked);
-		}
-	}
+            this.ServerIP = "127.0.0.1";
+            this.Port = 16834;
+            this.lblServerStatus.Text = "";
+
+            this.txtIPAddress.DataBindings.Add("Text", this, "ServerIP", false, DataSourceUpdateMode.OnPropertyChanged);
+            this.txtPort.DataBindings.Add("Text", this, "PortString", false, DataSourceUpdateMode.OnPropertyChanged);
+        }
+
+        private int CreateSettingsNode(XmlDocument document, XmlElement parent)
+        {
+            return SettingsHelper.CreateSetting(document, parent, "ServerIP", this.ServerIP) ^
+                SettingsHelper.CreateSetting(document, parent, "Port", this.PortString) ^
+                SettingsHelper.CreateSetting(document, parent, "EnableAutosplit", this.EnableAutosplit);
+        }
+
+        public XmlNode GetSettings(XmlDocument document)
+        {
+            XmlElement parent = document.CreateElement("Settings");
+            this.CreateSettingsNode(document, parent);
+            return parent;
+        }
+
+        public int GetSettingsHashCode() => this.CreateSettingsNode(null, null);
+
+        public void SetSettings(XmlNode settings)
+        {
+            this.ServerIP = SettingsHelper.ParseString(settings["ServerIP"]);
+
+            this.PortString = SettingsHelper.ParseString(settings["Port"]);
+
+            this.EnableAutosplit = SettingsHelper.ParseBool(settings["EnableAutosplit"]);
+
+            // Set checkbox checked based on the setting
+            this.cbAutosplit.Checked = this.EnableAutosplit;
+        }
+
+        public void SetStatusText(string statusText) => this.lblServerStatus.Text = statusText;
+
+        private async void btnConnect_Click(object sender, EventArgs e) => await this.remote.instance.ConnectToServer();
+
+        private void cbAutosplit_CheckedChanged(object sender, EventArgs e) => this.EnableAutosplit = this.cbAutosplit.Checked;
+
+        private void LSRemoteSettings_Load(object sender, EventArgs e) => this.lblServerStatus.Text = this.remote.instance.ServerStatus;
+    }
 }

@@ -1,147 +1,67 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows.Threading;
-using System.Xml;
-using System.Xml.Linq;
 
 namespace LiveSplit.RemotePlugin
 {
-	public class LSRemoteInstance
-	{
-		DateTime start;
-		TcpClient client;
+    public class LSRemoteInstance
+    {
+        private readonly DateTime start;
+        private TcpClient client;
 
-		public static string AppDataRoamingPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\LiveSplitRemote";
-		public static string ConfigurationFile = AppDataRoamingPath + @"\Config.xml";
+        public string ServerStatus { get; set; }
 
-		public string ServerStatus { get; set; }
-		public string IPAddress { get; set; }
-		public int Port { get; set; }
-		public bool Autosplit { get; set; }
-		
-		public LSRemoteInstance()
-		{
-			start = DateTime.Now;
-			CreateConfiguration();
-			VerifyConfig();
-			ReadConfiguration();
-			ConnectToServer();
-		}
-		
-		public string sendCommandString(string commandString, bool hasReturn)
-		{
-			if(client.Connected) {
-				StreamWriter sw = new StreamWriter(client.GetStream());
-				StreamReader sr = new StreamReader(client.GetStream());
-				sw.WriteLine(commandString);
-				sw.Flush();
-				if(hasReturn) {
-					return sr.ReadLine();
-				}
-			}
-			
-			return "";
-		}
+        private readonly LSRemote remote;
 
-		public void CreateConfiguration()
-		{
-			if (!File.Exists(ConfigurationFile))
-			{
-				Directory.CreateDirectory(AppDataRoamingPath);
-				XmlTextWriter Writer = new XmlTextWriter(ConfigurationFile, Encoding.UTF8);
-				Writer.Formatting = Formatting.Indented;
-				Writer.WriteStartElement("Configs");
+        public LSRemoteInstance(LSRemote remote)
+        {
+            this.remote = remote;
 
-				Writer.WriteStartElement("IPAddress");
-				Writer.WriteString("0.0.0.0");
-				Writer.WriteEndElement();
+            this.start = DateTime.Now;
 
-				Writer.WriteStartElement("Port");
-				Writer.WriteString("16834");
-				Writer.WriteEndElement();
+            this.ConnectToServer();
+        }
 
-				Writer.WriteStartElement("Autosplit");
-				Writer.WriteString("True");
-				Writer.WriteEndElement();
+        public string sendCommandString(string commandString, bool hasReturn)
+        {
+            if (this.client.Connected)
+            {
+                StreamWriter sw = new StreamWriter(this.client.GetStream());
+                StreamReader sr = new StreamReader(this.client.GetStream());
+                sw.WriteLine(commandString);
+                sw.Flush();
+                if (hasReturn)
+                {
+                    return sr.ReadLine();
+                }
+            }
 
-				Writer.WriteEndElement();
-				Writer.Close();
-			}
-		}
+            return "";
+        }
 
-		public void ReadConfiguration()
-		{
-			if (File.Exists(ConfigurationFile))
-			{
-				XDocument xml = XDocument.Load(ConfigurationFile);
-				XElement ipElement = xml.Element("Configs").Element("IPAddress");
-				IPAddress = ipElement.Value;
-				XElement portElement = xml.Element("Configs").Element("Port");
-				Port = int.Parse(portElement.Value);
-				XElement autoSplitElement = xml.Element("Configs").Element("Autosplit");
-				Autosplit = bool.Parse(autoSplitElement.Value);
-			}
-		}
+        public async Task ConnectToServer()
+        {
+            this.remote.settings.SetStatusText("Attempting connection...");
 
+            try
+            {
+                this.client?.Close();
+                this.client = new TcpClient();
+                await this.client.ConnectAsync(this.remote.settings.ServerIP, this.remote.settings.Port);
+                this.ServerStatus = "Connected";
+            }
+            catch
+            {
+                this.ServerStatus = "Connection Error\nPlease check settings and restart LiveSplit server";
+            }
 
-		private void VerifyConfig()
-		{
-			XDocument xml = XDocument.Load(ConfigurationFile);
-			XElement ipElement = xml.Element("Configs").Element("IPAddress");
-			XElement portElement = xml.Element("Configs").Element("Port");
-			XElement autoSplitElement = xml.Element("Configs").Element("Autosplit");
-			if (ipElement == null)
-			{
-				xml.Descendants("Configs").FirstOrDefault().Add(new XElement("IPAddress","0.0.0.0"));
-			}
-			if (portElement == null)
-			{
-				xml.Descendants("Configs").FirstOrDefault().Add(new XElement("Port", "16834"));
-			}
-			if (autoSplitElement == null)
-			{
-				xml.Descendants("Configs").FirstOrDefault().Add(new XElement("Autosplit", "True"));
-			}
-			xml.Save(ConfigurationFile);
-		}
+            this.remote.settings.SetStatusText(this.ServerStatus);
+        }
 
-		public void SaveConfiguration(string ip, string port, bool autoSplit)
-		{
-			XDocument xml = XDocument.Load(ConfigurationFile);
-			xml.Element("Configs").Element("IPAddress").Value = ip;
-			xml.Element("Configs").Element("Port").Value = port.ToString();
-			xml.Element("Configs").Element("Autosplit").Value = autoSplit.ToString();
-			xml.Save(ConfigurationFile);
-			ReadConfiguration();
-		}
+        public void Disconnect()
+        {
 
-		public async Task ConnectToServer()
-		{
-			try
-			{
-				if(client != null)
-				{
-					client.Close();
-				}
-				client = new TcpClient();
-				await client.ConnectAsync(IPAddress, Port);
-				ServerStatus = "Connected";
-			}
-			catch
-			{
-				ServerStatus = "Connection Error\nPlease check settings and restart LiveSplit server";
-			}
-		}
-
-		public void Disconnect()
-		{
-
-		}
-	}
+        }
+    }
 }
